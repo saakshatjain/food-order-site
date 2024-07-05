@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-ini
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "DATABASE_URL"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  firstname String
+  lastname  String
+  contact Int
+  password  String
+  addresses Address[]
+  orders    Order[]
+}
+
+model Address {
+  id          Int    @id @default(autoincrement())
+  username    String
+  houseno String
+  city        String
+  pincode     Int
+  user        User   @relation(fields: [username], references: [username])
+}
+
+model Admin {
+  id        Int    @id @default(autoincrement())
+  firstname String
+  lastname  String
+  username  String @unique
+  password  String
+  storeId   Int
+  store     Store  @relation(fields: [storeId], references: [id])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  items       OrderItem[]
+  amount      Int
+  description String
+  username    String
+  timestamp   DateTime    @default(now())
+  user        User        @relation(fields: [username], references: [username])
+  storeId     Int
+  store       Store       @relation(fields: [storeId], references: [id])
+}
+
+model OrderItem {
+  id       Int    @id @default(autoincrement())
+  quantity Int
+  itemId   Int
+  orderId  Int
+  order    Order  @relation(fields: [orderId], references: [id])
+  item     Menu   @relation(fields: [itemId], references: [id])
+}
+
+model Menu {
+  id         Int        @id @default(autoincrement())
+  imageUrl   String
+  amount     Int
+  discount   Int        @default(0)
+  details    String
+  visibility Boolean    @default(true)
+  storeId    Int
+  store      Store      @relation(fields: [storeId], references: [id])
+  orders     OrderItem[]
+}
+
+model Store {
+  id          Int       @id @default(autoincrement())
+  storeId     String    @unique
+  storeStreet String
+  city        String
+  pincode     Int
+  admins      Admin[]
+  menu        Menu[]
+  orders      Order[]
+}
+
