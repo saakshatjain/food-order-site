@@ -164,7 +164,7 @@ router.post("/additem" , adminmiddleware , async function(req:CustomRequest,res:
        }
 })
 
-router.get("/getitems", adminmiddleware , async function(req:CustomRequest,res:Response) {
+router.get("/items", adminmiddleware , async function(req:CustomRequest,res:Response) {
     try {
         const result = await prisma.menu.findMany({
             where : {

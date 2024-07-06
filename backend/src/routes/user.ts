@@ -196,4 +196,24 @@ router.get("/getaddress", authmiddleware, async function(req : CustomRequest, re
       } 
 })
 
+router.get("/menu", authmiddleware , async function(req:CustomRequest,res:Response) {
+    const storeid = parseInt(req.query.storeid as string);
+    try { 
+       const items = await prisma.menu.findMany({
+        where : {
+            storeId : storeid,
+            visibility : true,
+        }
+       })
+
+       return res.status(200).json({
+          menu : items,
+       })
+    } catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt fetch menu"
+        })
+    }
+})
+
 export default router;
