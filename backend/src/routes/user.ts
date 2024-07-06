@@ -177,4 +177,23 @@ router.post("/addaddress", authmiddleware , async function(req:CustomRequest,res
 }
 })
 
+router.post("/getaddress", authmiddleware, async function(req : CustomRequest, res:Response) {
+      let username:string = req.username as string;
+      try {
+        const result = await prisma.address.findMany({
+            where : {
+                username,
+            }
+        })
+
+        return res.status(200).json({
+            addresses : result
+        })
+      } catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt fetch addresses"
+        })
+      } 
+})
+
 export default router;
