@@ -177,7 +177,7 @@ router.post("/addaddress", authmiddleware , async function(req:CustomRequest,res
 }
 })
 
-router.post("/getaddress", authmiddleware, async function(req : CustomRequest, res:Response) {
+router.get("/getaddress", authmiddleware, async function(req : CustomRequest, res:Response) {
       let username:string = req.username as string;
       try {
         const result = await prisma.address.findMany({

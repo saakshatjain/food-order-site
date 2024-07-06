@@ -163,4 +163,23 @@ router.post("/additem" , adminmiddleware , async function(req:CustomRequest,res:
         })
        }
 })
+
+router.get("/getitems", adminmiddleware , async function(req:CustomRequest,res:Response) {
+    try {
+        const result = await prisma.menu.findMany({
+            where : {
+                storeId : req.storeId as number,
+            }
+        })
+
+        return res.status(200).json({
+            items : result,
+        })
+    } catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt fetch items",
+        })
+    }
+
+})
 export default router;
