@@ -2,10 +2,11 @@ import express, { Request, Response } from "express";
 import zod from "zod";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config";
-import { authmiddleware } from "../middlewares/authmiddleware";
+import { adminmiddleware } from "../middlewares/adminmiddleware";
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import { SuiteContext } from "node:test";
 const prisma = new PrismaClient();
 const router = express.Router();
 const signupbody = zod.object({
@@ -100,7 +101,7 @@ router.post("/signin", async function(req:Request,res:Response) {
     }
 
     const token = jwt.sign({
-        username : admin.username
+        storeId : admin.storeId
     },JWT_SECRET); 
 
     res.json({
@@ -115,12 +116,51 @@ router.post("/signin", async function(req:Request,res:Response) {
 
 })
 
+interface CustomRequest extends Request {
+    storeId?:Number
+}
 
-
-router.post("/testing" , authmiddleware , function(req : Request ,res:Response) {
+router.post("/testing" , adminmiddleware , function(req : CustomRequest ,res:Response) {
          res.json({
             msg : "Hello",
         })
 })
+const itembody = zod.object({
+    imageUrl : zod.string(),
+    amount : zod.number(),
+    discount : zod.number(),
+    details : zod.string(),
+    visibility : zod.boolean(),
+})
+router.post("/additem" , adminmiddleware , async function(req:CustomRequest,res:Response) {  
+       const {success} = itembody.safeParse(req.body);
+       if (!success) {
+        return res.status(400).json({
+            msg : "Invalid Paramters",
+        })
+       }
+       const storeId:number = req.storeId as number;
+       console.log(storeId);
+       try {
+        const result = await prisma.menu.create({
+            data : {
+                storeId:storeId,
+                imageUrl:req.body.imageUrl,
+                amount:req.body.amount,
+                discount:req.body.discount,
+                visibility:req.body.visibility,
+                details: req.body.details,
+            }
+        })
 
+        return res.status(200).json({
+            msg : "Item added"
+        })
+       } catch(error) {
+        console.log(error);
+        return res.status(400).json({
+            msg : "Item couldnt be added",
+        })
+       }
+})
 export default router;
