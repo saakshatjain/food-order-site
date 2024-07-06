@@ -182,4 +182,37 @@ router.get("/getitems", adminmiddleware , async function(req:CustomRequest,res:R
     }
 
 })
+
+router.put("/changevisibility", adminmiddleware , async function(req:CustomRequest,res:Response) {
+     try {
+        const item = await prisma.menu.findUnique({
+            where : {
+                id:req.body.id,
+            }
+        })
+
+        if (!item) {
+            return res.status(404).json({
+                msg: "Item not found",
+            });
+        }
+        const visibility:boolean = item.visibility as boolean;
+        const update = await prisma.menu.update({
+            where : {
+                id : req.body.id,
+            },
+            data : {
+                visibility : !visibility,
+            }
+        })
+        
+        return res.status(200).json({
+            msg : "Visibility changed",
+        })
+        } catch(error) {
+            return res.status(400).json({
+                msg : "couldnt change visibilty",
+            })
+     }
+})
 export default router;
