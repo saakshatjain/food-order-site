@@ -146,7 +146,21 @@ interface CustomRequest extends Request {
     username?:String
 }
 
+const editprofile = zod.object({
+    firstname : String,
+    lastname : String,
+    contact : Number,
+    password : String,
+})
+
 router.put("/editprofile", authmiddleware , async function(req:CustomRequest,res:Response) {
+
+    const {success} = editprofile.safeParse(req.body);
+    if (!success) {
+        return res.status(411).json({
+            msg : "Invalid Inputs"
+        })
+    }
 
     const hashed = await bcrypt.hash(req.body.password,5);
     try {
@@ -172,6 +186,7 @@ router.put("/editprofile", authmiddleware , async function(req:CustomRequest,res
         })
     }
 })
+
 
 router.post("/addaddress", authmiddleware , async function(req:CustomRequest,res:Response) {
     const {success} = addressbody.safeParse(req.body);
@@ -205,6 +220,7 @@ router.post("/addaddress", authmiddleware , async function(req:CustomRequest,res
 })
 
 router.get("/getaddress", authmiddleware, async function(req : CustomRequest, res:Response) {
+
       let username:string = req.username as string;
       try {
         const result = await prisma.address.findMany({
@@ -223,7 +239,17 @@ router.get("/getaddress", authmiddleware, async function(req : CustomRequest, re
       } 
 })
 
+
+
 router.put("/editaddress", authmiddleware , async function(req:CustomRequest,res:Response) {
+
+    const {success} = addressbody.safeParse(req.body);
+    if (!success) {
+        return res.status(411).json({
+            msg : "Invalid Inputs"
+        })
+    }
+
     try {
         const result = await prisma.address.update({
             where : {
@@ -245,7 +271,18 @@ router.put("/editaddress", authmiddleware , async function(req:CustomRequest,res
         }
 })
 
+const deleteaddress = zod.object({
+    id : Number,
+})
 router.delete("/deleteaddress", authmiddleware, async function(req:CustomRequest,res:Response) {
+
+    const {success} = deleteaddress.safeParse(req.body);
+    if (!success) {
+        return res.status(411).json({
+            msg : "Invalid Inputs"
+        })
+    }
+
     try {
         const result = await prisma.address.delete({
             where : {
@@ -280,6 +317,12 @@ router.get("/menu", authmiddleware , async function(req:CustomRequest,res:Respon
             msg : "Couldnt fetch menu"
         })
     }
+})
+
+const checkout= zod.object({
+    amount : Number,
+    description:String,
+    items : Array
 })
 
 router.post("/checkout",authmiddleware , async function(req:CustomRequest,res:Response) {
