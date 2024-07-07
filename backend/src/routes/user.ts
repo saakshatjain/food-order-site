@@ -146,6 +146,33 @@ interface CustomRequest extends Request {
     username?:String
 }
 
+router.put("/editprofile", authmiddleware , async function(req:CustomRequest,res:Response) {
+
+    const hashed = await bcrypt.hash(req.body.password,5);
+    try {
+        const result = await prisma.user.update({
+            where : {
+                username : req.username as string,
+            },
+            data : {
+               firstname : req.body.firstname,
+               lastname : req.body.lastname,
+               contact : req.body.contact,
+               password : hashed
+            }
+        })
+
+        return res.status(200).json({
+            msg : "User updated successfully",
+        })
+
+    } catch(error) {
+        return res.status(400).json({
+            msg : "User couldnt be updated",
+        })
+    }
+})
+
 router.post("/addaddress", authmiddleware , async function(req:CustomRequest,res:Response) {
     const {success} = addressbody.safeParse(req.body);
 
