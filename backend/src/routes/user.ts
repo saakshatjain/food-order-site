@@ -320,4 +320,23 @@ router.post("/checkout",authmiddleware , async function(req:CustomRequest,res:Re
     }
 })
 
+router.get("/getorders", authmiddleware , async function(req:CustomRequest,res:Response) {
+    const username:string = req.username as string;
+    try {
+        const result = await prisma.order.findMany({
+            where : {
+                username,
+            }
+        })
+
+        return res.json({
+            orders : result,
+        })
+    } catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt fetch orders",
+        })
+    }
+}) 
+
 export default router;
