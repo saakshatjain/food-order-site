@@ -196,6 +196,28 @@ router.get("/getaddress", authmiddleware, async function(req : CustomRequest, re
       } 
 })
 
+router.put("/editaddress", authmiddleware , async function(req:CustomRequest,res:Response) {
+    try {
+        const result = await prisma.address.update({
+            where : {
+                id : req.body.id as number,
+            },
+            data : {
+                houseno : req.body.houseno,
+                city : req.body.city,
+                pincode : req.body.pincode,
+            }
+        })
+        return res.status(200).json({
+            msg : "Address updated succesfully",
+        })
+     } catch(error) {
+            return res.status(411).json({
+                msg : "Couldnt update address",
+            })
+        }
+})
+
 router.get("/menu", authmiddleware , async function(req:CustomRequest,res:Response) {
     const storeid = parseInt(req.query.storeid as string);
     try { 
