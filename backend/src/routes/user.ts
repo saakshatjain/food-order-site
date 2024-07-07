@@ -218,6 +218,23 @@ router.put("/editaddress", authmiddleware , async function(req:CustomRequest,res
         }
 })
 
+router.delete("/deleteaddress", authmiddleware, async function(req:CustomRequest,res:Response) {
+    try {
+        const result = await prisma.address.delete({
+            where : {
+                id : req.body.id,
+            }
+        })
+
+        return res.status(200).json({
+            msg : "Address deleted successfully",
+        })
+    } catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt delete address",
+        })
+    }
+})
 router.get("/menu", authmiddleware , async function(req:CustomRequest,res:Response) {
     const storeid = parseInt(req.query.storeid as string);
     try { 
