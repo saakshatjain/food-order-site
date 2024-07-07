@@ -282,4 +282,42 @@ router.get("/menu", authmiddleware , async function(req:CustomRequest,res:Respon
     }
 })
 
+router.post("/checkout",authmiddleware , async function(req:CustomRequest,res:Response) {
+    const storeid = parseInt(req.query.storeid as string);
+    const  username:string = req.username as string;
+
+   interface itemtype {
+     quantity : number,
+     itemId : number,
+   }
+    try { 
+        const result = await prisma.order.create({
+            data : {
+                storeId : storeid,
+                username : username,
+                amount : req.body.amount,
+                description : req.body.description,
+                items : {
+                    create : req.body.items.map((item:itemtype)=> ({
+                             quantity : item.quantity,
+                             itemId : item.itemId,
+                        }))
+                    }
+
+
+
+            }
+        })
+
+        return res.json({
+            msg : "Ordered successfuly",
+        })
+    } catch(error) {
+        console.log(error);
+        return res.status(400).json({
+            msg : "Couldnt Place order",
+        })
+    }
+})
+
 export default router;
