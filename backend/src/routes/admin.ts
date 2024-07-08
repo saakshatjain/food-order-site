@@ -7,6 +7,7 @@ import { adminmiddleware } from "../middlewares/adminmiddleware";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { SuiteContext } from "node:test";
+import { disconnect } from "node:process";
 const prisma = new PrismaClient();
 const router = express.Router();
 const signupbody = zod.object({
@@ -281,5 +282,40 @@ router.post("/completed" , adminmiddleware , async function(req:CustomRequest,re
             msg : "Couldnt complete order currently",
         })
     } 
+})
+
+const updateitem = zod.object({
+    id : zod.number(),
+    amount : zod.number(),
+    discount : zod.number(),
+})
+router.put("/updateitem", adminmiddleware , async function(req:CustomRequest,res:Response) {
+
+    const {success} = updateitem.safeParse(req.body);
+    if (!success) {
+        return res.status(400).json({
+            msg : "Invalid paramters",
+        })
+    }
+    try {
+        const result = await prisma.menu.update({
+            where : {
+                id : req.body.id,
+            },
+            data : {
+                amount : req.body.amount,
+                discount : req.body.discount,
+            }
+        })
+
+        return res.json({
+            msg : "Item updated successfully",
+        })
+    } catch(error) {
+        console.log(error);
+        return res.status(400).json({
+            msg : "Couldnt update item",
+        })
+    }
 })
 export default router;
