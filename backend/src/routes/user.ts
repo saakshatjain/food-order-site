@@ -147,10 +147,10 @@ interface CustomRequest extends Request {
 }
 
 const editprofile = zod.object({
-    firstname : String,
-    lastname : String,
-    contact : Number,
-    password : String,
+    firstname : zod.string(),
+    lastname : zod.string(),
+    contact : zod.number(),
+    password : zod.string(),
 })
 
 router.put("/editprofile", authmiddleware , async function(req:CustomRequest,res:Response) {
@@ -272,7 +272,7 @@ router.put("/editaddress", authmiddleware , async function(req:CustomRequest,res
 })
 
 const deleteaddress = zod.object({
-    id : Number,
+    id : zod.number(),
 })
 router.delete("/deleteaddress", authmiddleware, async function(req:CustomRequest,res:Response) {
 
@@ -320,14 +320,26 @@ router.get("/menu", authmiddleware , async function(req:CustomRequest,res:Respon
 })
 
 const checkout= zod.object({
-    amount : Number,
-    description:String,
-    items : Array
+    amount : zod.number(),
+    description:zod.string(),
+    items : zod.array(zod.object({
+           quantity : zod.number(),
+           itemId : zod.number() 
+    })
+    )
 })
 
 router.post("/checkout",authmiddleware , async function(req:CustomRequest,res:Response) {
     const storeid = parseInt(req.query.storeid as string);
     const  username:string = req.username as string;
+
+    const {success}= checkout.safeParse(req.body);
+    if (!success) {
+        return res.status(411).json({
+            msg : "Invalid Inputs"
+        })
+    }
+
 
    interface itemtype {
      quantity : number,
