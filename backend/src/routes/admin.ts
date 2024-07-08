@@ -215,4 +215,71 @@ router.put("/changevisibility", adminmiddleware , async function(req:CustomReque
             })
      }
 })
+
+router.get("/allorders" , adminmiddleware , async function(req:CustomRequest,res:Response) {
+    try {
+        const result = await prisma.order.findMany({
+            where : {
+                storeId:req.storeId as number,
+            }
+        })
+
+        return res.status(200).json({
+            orders : result,
+        })
+    } catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt fetch orders",
+        })
+    }
+})
+
+router.get("/pendingorder" , adminmiddleware , async function(req:CustomRequest,res:Response) {
+    try {
+        const result = await prisma.order.findMany({
+            where : {
+                storeId:req.storeId as number,
+                pending:false,
+            }
+        })
+        return res.status(200).json({
+            orders : result,
+        })
+    }
+    catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt fetch orders",
+        })
+    }
+})
+
+const completed = zod.object({
+    id : zod.number(),
+})
+router.post("/completed" , adminmiddleware , async function(req:CustomRequest,res:Response) {
+
+    const {success} = completed.safeParse(req.body);
+    if (!success) {
+        return res.status(400).json({
+            msg : "Invalid paramters",
+        })
+    }
+    try {
+        const result = await prisma.order.update({
+            where : {
+                id : req.body.id as number,
+            },
+            data : {
+                pending:true,
+            }
+        })
+        return res.status(200).json({
+            msg : "Order completed successfuly",
+        })
+    } catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt complete order currently",
+        })
+    } 
+})
 export default router;

@@ -48,6 +48,7 @@ model Order {
   amount      Int
   description String
   username    String
+  pending     Boolean     @default(false)
   timestamp   DateTime    @default(now())
   user        User        @relation(fields: [username], references: [username])
   storeId     Int
