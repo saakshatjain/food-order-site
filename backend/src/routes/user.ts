@@ -392,6 +392,38 @@ router.get("/getorders", authmiddleware , async function(req:CustomRequest,res:R
             msg : "Couldnt fetch orders",
         })
     }
-}) 
+})
+
+const filterbody = zod.object({
+    filter : zod.string(),
+})
+router.post("/filter" , authmiddleware , async function(req:CustomRequest,res:Response) {
+    const storeid = parseInt(req.query.storeid as string);
+    const {success} = filterbody.safeParse(req.body);
+    if (!success) {
+        return res.status(400).json({
+            msg : "Invalid paramters",
+        })
+    }
+      try {
+        const data = await prisma.menu.findMany({
+            where : {
+                details : {
+                    contains : req.body.filter,
+                },
+                storeId:storeid,
+            }
+        })
+
+        return res.json({
+            items : data,
+        })
+      }
+      catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt fetch items",
+        })
+      }
+})
 
 export default router;
