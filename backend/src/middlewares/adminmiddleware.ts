@@ -1,4 +1,4 @@
-import { JWT_SECRET } from "../config";
+import { JWT_SECRET } from "../config1";
 import { NextFunction, Request,Response } from "express";
 import jwt from "jsonwebtoken";
 

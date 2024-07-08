@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import zod from "zod";
 import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../config";
+import { JWT_SECRET } from "../config1";
 import { adminmiddleware } from "../middlewares/adminmiddleware";
 
 import { PrismaClient } from "@prisma/client";

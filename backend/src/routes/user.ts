@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 import bcrypt from 'bcrypt';
 import { userInfo } from "os";
 import jwt from "jsonwebtoken";
-import {JWT_SECRET} from "../config";
+import {JWT_SECRET} from "../config1";
 import { authmiddleware } from "../middlewares/authmiddleware";
 
 const signupBody = zod.object({
