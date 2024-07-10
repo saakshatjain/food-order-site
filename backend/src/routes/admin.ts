@@ -8,6 +8,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { SuiteContext } from "node:test";
 import { disconnect } from "node:process";
+import { timeStamp } from "node:console";
 const prisma = new PrismaClient();
 const router = express.Router();
 const signupbody = zod.object({
@@ -316,6 +317,79 @@ router.put("/updateitem", adminmiddleware , async function(req:CustomRequest,res
         return res.status(400).json({
             msg : "Couldnt update item",
         })
+    }
+})
+
+router.get("/getmonthsales", adminmiddleware, async function(req:CustomRequest,res:Response) {
+    const dateobj=new Date();
+    let currentYear=dateobj.getFullYear();
+    let currentMonth=dateobj.getMonth(); 
+    let currentDay=dateobj.getDate();
+
+    try {
+        const total = await prisma.order.aggregate({
+            where: {
+                AND: [
+                  {
+                    timestamp: {
+                      gte: new Date(currentYear, currentMonth-1, currentDay+1), 
+                    },
+                  },
+                  {
+                    timestamp: {
+                      lt: new Date(currentYear, currentMonth, currentDay+1), 
+                    },
+                  },
+                ],
+              },
+              _sum:{
+                  amount:true
+              }
+          });
+          if (total["_sum"]["amount"]==null) {
+            total["_sum"]["amount"]=0;
+        }
+
+          return res.json({"total":total["_sum"]["amount"]});
+    } catch(error) {
+        return res.status(400).json({
+            msg : "Couldnt fetch Amount",
+        })
+    }
+})
+
+router.get("/dailysales", adminmiddleware , async function(req:CustomRequest,res:Response) {
+    const dateobj=new Date();
+    let currentYear=dateobj.getFullYear();
+    let currentMonth=dateobj.getMonth();
+    let currentDay=dateobj.getDate();
+    try{
+        const total = await prisma.order.aggregate({
+            where: {
+              AND: [
+                {
+                  timestamp: {
+                    gte: new Date(currentYear, currentMonth, currentDay), 
+                  },
+                },
+                {
+                  timestamp: {
+                    lt: new Date(currentYear, currentMonth, currentDay+1), 
+                  },
+                },
+              ],
+            },
+            _sum:{
+                amount:true
+            }
+        });
+        if (total["_sum"]["amount"]==null) {
+            total["_sum"]["amount"]=0;
+        }
+        res.json({"total":total["_sum"]["amount"]});
+
+    }catch(err){
+        res.status(500).json({"msg":"Couldnt fetch amount"});
     }
 })
 export default router;
