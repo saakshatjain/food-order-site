@@ -31,7 +31,7 @@ router.use(express.json());
 router.post("/signup" , async function(req:Request,res:Response) {
     const {success} = signupBody.safeParse(req.body);
     if (!success) {
-        return res.status(411).json({
+        return res.status(400).json({
             msg : "Invalid Inputs"
         })
     }
@@ -43,7 +43,7 @@ router.post("/signup" , async function(req:Request,res:Response) {
     })
 
     if (alreadyexist) {
-        return res.status(411).json({
+        return res.status(400).json({
             msg : "User already exists"
         })
     }
@@ -427,3 +427,9 @@ router.post("/filter" , authmiddleware , async function(req:CustomRequest,res:Re
 })
 
 export default router;
+
+
+
+
+
+//username same for edit delete request pending
