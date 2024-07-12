@@ -14,7 +14,7 @@ const signupBody = zod.object({
 	firstname: zod.string(),
 	lastname: zod.string(),
 	password: zod.string().min(5),
-    contact : zod.number(),
+    contact : zod.string(),
     addresses : zod.object({
     houseno : zod.string(),
     city : zod.string(),
@@ -149,7 +149,7 @@ interface CustomRequest extends Request {
 const editprofile = zod.object({
     firstname : zod.string(),
     lastname : zod.string(),
-    contact : zod.number(),
+    contact : zod.string(),
     password : zod.string(),
 })
 
