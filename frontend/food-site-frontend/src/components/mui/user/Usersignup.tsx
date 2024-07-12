@@ -1,17 +1,28 @@
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
+import { CircularProgress } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form'; 
 
 const defaultTheme = createTheme();
 
+interface IFormInput {
+  firstname: string;
+  lastname: string;
+  username: string;
+  password: string;
+  contact: string;
+  address: string;
+  city: string;
+  pincode: number;
+}
 
 interface SignupResponse {
     msg: string;
@@ -19,44 +30,35 @@ interface SignupResponse {
   }
 
 export default function SignUp() {
-    const [firstname,setfirstname] = useState('');
-   const [lastname,setlastname]= useState('');
-   const [username,setusername]=useState('');
-   const [password,setpassword]=useState('');
-   const [contact , setcontact]=useState(0);
-    const [address,setaddress]=useState('');
-    const [city,setcity]=useState('');
-   const [pincode,setpincode]=useState(0);
-   const [message, setMessage]= useState('');
 
-   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-      const requestOptions: RequestInit = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstname,
-          lastname ,
-          username,
-          password,
-          contact,
-          addresses: {
-            houseno:address,
-            pincode,
-            city,
-          },
-        }),
-      };
-
+  const { register, handleSubmit, formState: { errors , isSubmitting} } = useForm<IFormInput>();
+  const [message,setmessage] = useState('');
+   const onSubmit: SubmitHandler<IFormInput> = async (data:IFormInput) => {
+    const requestOptions: RequestInit = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstname: data.firstname,
+        lastname: data.lastname,
+        username: data.username,
+        password: data.password,
+        contact: data.contact,
+        addresses: {
+          houseno: data.address,
+          pincode: data.pincode,
+          city: data.city,
+        },
+      }),
+    };
       const response = await fetch('http://localhost:3000/api/v1/user/signup', requestOptions);
 
       if (response.status==200) {
-        setMessage("Account Created Succesfully");
+        setmessage("Account Created Succesfully");
         return;
       }
 
       const responseData: SignupResponse = await response.json();
-      setMessage(responseData.msg);
+      setmessage(responseData.msg);
   };
 
   return (
@@ -71,24 +73,23 @@ export default function SignUp() {
             alignItems: 'center',
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-     
-          </Avatar>
+          <img src="https://images-platform.99static.com/A_Ax0GQuo_NHI0Y7XZHmFtGfBDY=/0x0:1000x1000/500x500/top/smart/99designs-contests-attachments/126/126252/attachment_126252018" alt="Sign Up" style={{ width: 60, height: 60, borderRadius: '50%' }} />
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+          <Box component="form" noValidate onSubmit={handleSubmit(onSubmit)} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   autoComplete="given-name"
-                  name="firstName"
                   required
                   fullWidth
                   id="firstName"
                   label="First Name"
                   autoFocus
-                  onChange={e=>setfirstname(e.target.value)}
+                  {...register('firstname', { required: 'First name is required' })}
+                  error={!!errors.firstname}
+                  helperText={errors.firstname ? errors.firstname.message : ''}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -97,9 +98,10 @@ export default function SignUp() {
                   fullWidth
                   id="lastName"
                   label="Last Name"
-                  name="lastName"
                   autoComplete="family-name"
-                  onChange={e=>setlastname(e.target.value)}
+                  {...register('lastname', { required: 'Last name is required' })}
+                  error={!!errors.lastname}
+                  helperText={errors.lastname ? errors.lastname.message : ''}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -108,21 +110,23 @@ export default function SignUp() {
                   fullWidth
                   id="email"
                   label="Email Address"
-                  name="email"
                   autoComplete="email"
-                  onChange={e=>setusername(e.target.value)}
+                  {...register('username', { required: 'Username is required', minLength: { value: 5, message: 'Username must be at least 5 characters' } })}
+                  error={!!errors.username}
+                  helperText={errors.username ? errors.username.message : ''}
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
-                  name="password"
                   label="Password"
                   type="password"
                   id="password"
                   autoComplete="new-password"
-                  onChange={e=>setpassword(e.target.value)}
+                  {...register('password', { required: 'Password is required', minLength: { value: 5, message: 'Password must be at least 5 characters' } })}
+                  error={!!errors.password}
+                  helperText={errors.password ? errors.password.message : ''}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -131,10 +135,16 @@ export default function SignUp() {
                   fullWidth
                   id="contactNumber"
                   label="Contact Number"
-                  name="contactNumber"
                   autoComplete="tel"
-                  type="number"
-                  onChange={e=>setcontact(parseInt(e.target.value))}
+                  type="text"
+                  {...register('contact', { 
+                    required: 'Contact number is required', 
+                    minLength: { value: 10, message: 'Contact number must be exactly 10 characters' },
+                    maxLength: { value: 10, message: 'Contact number must be exactly 10 characters' }
+                  })}
+                  error={!!errors.contact}
+                  helperText={errors.contact ? errors.contact.message : ''}
+
                 />
               </Grid>
               <Grid item xs={12}>
@@ -143,9 +153,10 @@ export default function SignUp() {
                   fullWidth
                   id="address"
                   label="Address"
-                  name="address"
                   autoComplete="street-address"
-                  onChange={e=>setaddress(e.target.value)}
+                  {...register('address', { required: 'Address is required' })}
+                  error={!!errors.address}
+                  helperText={errors.address ? errors.address.message : ''}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -154,9 +165,10 @@ export default function SignUp() {
                   fullWidth
                   id="city"
                   label="City"
-                  name="city"
                   autoComplete="address-level2"
-                  onChange={e=>setcity(e.target.value)}
+                  {...register('city', { required: 'City is required' })}
+                  error={!!errors.city}
+                  helperText={errors.city ? errors.city.message : ''}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -165,10 +177,11 @@ export default function SignUp() {
                   fullWidth
                   id="pincode"
                   label="Pincode"
-                  name="pincode"
                   autoComplete="postal-code"
                   type="number"
-                  onChange={e=>setpincode(parseInt(e.target.value))}
+                  {...register('pincode', { required: 'Pincode is required', valueAsNumber: true })}
+                  error={!!errors.pincode}
+                  helperText={errors.pincode ? errors.pincode.message : ''}
                 />
               </Grid>
               
@@ -178,15 +191,16 @@ export default function SignUp() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={isSubmitting}
             >
-              Sign Up
+              {isSubmitting ? <CircularProgress size={24} /> : 'Sign Up'}
             </Button>
+            <Typography variant="body2" color="error" align="center" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>{message}</Typography>
             <Grid container justifyContent="flex-end">
               <Grid item>
                 <Link href="#" variant="body2">
                   Already have an account? Sign in
                 </Link>
-                <h3>{message}</h3>
               </Grid>
             </Grid>
           </Box>
