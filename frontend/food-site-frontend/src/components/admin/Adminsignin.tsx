@@ -10,6 +10,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form'; 
+import { useNavigate } from 'react-router-dom';
 
 
 const defaultTheme = createTheme();
@@ -28,6 +29,7 @@ export default function AdminSignIn() {
 
   const { register, handleSubmit, formState: { errors , isSubmitting} } = useForm<IFormInput>();
   const [message,setmessage] = useState('');
+  const navigate= useNavigate();
    const onSubmit: SubmitHandler<IFormInput> = async (data:IFormInput) => {
     const requestOptions: RequestInit = {
       method: 'POST',
@@ -44,6 +46,7 @@ export default function AdminSignIn() {
         const data = await response.json();
         const jwt= data.token;
         localStorage.setItem("token",jwt);
+        navigate("/dashboard")
         return;
       }
 

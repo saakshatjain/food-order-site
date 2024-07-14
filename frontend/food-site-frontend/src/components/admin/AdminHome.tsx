@@ -1,7 +1,8 @@
 import axios from "axios";
 import useSWR from "swr"
+import { Ordercard } from "./AdminOrderCard";
 
-async function fetcher(url:string) {
+async function fetcher(url:string){
     const token = localStorage.getItem("token");
     const {data} = await axios.get(url,{
         headers: {
@@ -14,6 +15,9 @@ async function fetcher(url:string) {
 export default function AdminHome() {
     interface Datainterface  {
         id:number,
+        amount :number,
+        pending : Boolean,
+
     }
 
     interface Allorders {
@@ -34,7 +38,7 @@ export default function AdminHome() {
     return <div>
         <h1>hi</h1>
         {data.orders.map((item) => (
-            <h2 key={item.id}>{item.id}</h2>
+            <Ordercard id={item.id} amount={item.amount} pending={item.pending}></Ordercard>
         ))}
     </div>
 }

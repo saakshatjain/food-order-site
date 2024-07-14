@@ -10,6 +10,7 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form'; 
+import { useNavigate } from 'react-router-dom';
 
 const defaultTheme = createTheme();
 
@@ -29,6 +30,7 @@ interface SignupResponse {
 export default function AdminSignUp() {
   const { register, handleSubmit, formState: { errors , isSubmitting} } = useForm<IFormInput>();
   const [message,setmessage] = useState('');
+  const navigate = useNavigate();
    const onSubmit: SubmitHandler<IFormInput> = async (data:IFormInput) => {
     const requestOptions: RequestInit = {
       method: 'POST',
@@ -44,7 +46,7 @@ export default function AdminSignUp() {
       const response = await fetch('http://localhost:3000/api/v1/admin/signup', requestOptions);
 
       if (response.status==200) {
-        setmessage("Account Created Succesfully");
+         navigate("/signin");
         return;
       }
 
