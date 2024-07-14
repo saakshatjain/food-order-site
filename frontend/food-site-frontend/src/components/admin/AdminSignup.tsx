@@ -38,7 +38,7 @@ export default function AdminSignUp() {
         lastname: data.lastname,
         username: data.username,
         password: data.password,
-        storeid : data.storeid,
+        storeId : Number(data.storeid),
       }),
     };
       const response = await fetch('http://localhost:3000/api/v1/admin/signup', requestOptions);
@@ -127,9 +127,10 @@ export default function AdminSignUp() {
                   id="storeid"
                   label="Store Id"
                   autoComplete="tel"
-                  type="text"
+                  type="number"
                   {...register('storeid', { 
-                    required: 'Store Id is required', 
+                    required: 'Store Id is required',
+                    valueAsNumber: true 
                   })}
                   error={!!errors.storeid}
                   helperText={errors.storeid ? errors.storeid.message : ''}

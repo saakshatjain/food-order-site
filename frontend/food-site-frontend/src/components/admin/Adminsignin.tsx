@@ -11,6 +11,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form'; 
 
+
 const defaultTheme = createTheme();
 
 interface IFormInput {
@@ -39,7 +40,10 @@ export default function AdminSignIn() {
       const response = await fetch('http://localhost:3000/api/v1/admin/signin', requestOptions);
 
       if (response.status==200) {
-        setmessage("Account Created Succesfully");
+        setmessage("Signed In");
+        const data = await response.json();
+        const jwt= data.token;
+        localStorage.setItem("token",jwt);
         return;
       }
 

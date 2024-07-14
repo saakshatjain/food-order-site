@@ -20,7 +20,7 @@ const adminmiddleware = async function(req:CustomRequest,res:Response,next:NextF
         console.log(verify);
         next();
     } catch(error) {
-        return res.status(411).json({});
+        return res.status(404).json({});
     }
 }
 
