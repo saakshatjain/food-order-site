@@ -17,6 +17,7 @@ export default function AdminHome() {
         id:number,
         amount :number,
         pending : Boolean,
+        timestamp : string,
 
     }
 
@@ -36,9 +37,20 @@ export default function AdminHome() {
         return <div>No Orders</div>
     }
     return <div>
-        <h1>hi</h1>
-        {data.orders.map((item) => (
-            <Ordercard id={item.id} amount={item.amount} pending={item.pending}></Ordercard>
+        <table>
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+            </tr>
+            </thead>
+            <tbody>
+           {data.orders.map((item:Datainterface) => (
+            <Ordercard id={item.id} amount={item.amount} pending={item.pending} date={item.timestamp.split("T")[0]}></Ordercard>
         ))}
+           </tbody>
+        </table>
     </div>
 }
