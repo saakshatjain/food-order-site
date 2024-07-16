@@ -1,6 +1,7 @@
 import axios from "axios";
 import useSWR from "swr"
 import { Ordercard } from "./AdminOrderCard";
+import { useState } from "react";
 
 async function fetcher(url:string){
     const token = localStorage.getItem("token");
@@ -13,6 +14,8 @@ async function fetcher(url:string){
     return data;
 }
 export default function AdminHome() {
+
+    const [skipcnt,setskipcnt]=useState(1);
     interface Datainterface  {
         id:number,
         amount :number,
@@ -24,7 +27,7 @@ export default function AdminHome() {
     interface Allorders {
         orders:Datainterface[],
     }
-    const {data,error,isLoading}=useSWR<Allorders>('http://localhost:3000/api/v1/admin/allorders',fetcher);
+    const {data,error,isLoading}=useSWR<Allorders>(`http://localhost:3000/api/v1/admin/allorders?skipcnt=${skipcnt}`,fetcher);
     if (error) {
         console.log(error);
         return <div>Error</div>

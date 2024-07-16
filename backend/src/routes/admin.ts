@@ -220,10 +220,17 @@ router.put("/changevisibility", adminmiddleware , async function(req:CustomReque
 })
 
 router.get("/allorders" , adminmiddleware , async function(req:CustomRequest,res:Response) {
+
+    let skipcnt:number= parseInt(req.query.skipcnt as string)
     try {
         const result = await prisma.order.findMany({
             where : {
                 storeId:req.storeId as number,
+            },
+            skip:(skipcnt-1)*20,
+            take : 20,
+            orderBy : {
+                timestamp : "desc",
             }
         })
 
