@@ -247,10 +247,21 @@ router.get("/allorders" , adminmiddleware , async function(req:CustomRequest,res
 router.get("/pendingorder" , adminmiddleware , async function(req:CustomRequest,res:Response) {
     try {
         const result = await prisma.order.findMany({
-            where : {
-                storeId:req.storeId as number,
-                pending:false,
-            }
+            where: {
+                storeId: req.storeId as number,
+                pending: false,
+              },
+             include : {
+                     items : {
+                        include : {
+                            item : {
+                                select : {
+                                    details : true,
+                                }
+                            }
+                        }
+                     }
+              },
         })
         return res.status(200).json({
             orders : result,
