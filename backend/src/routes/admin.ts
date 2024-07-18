@@ -244,12 +244,12 @@ router.get("/allorders" , adminmiddleware , async function(req:CustomRequest,res
     }
 })
 
-router.get("/pendingorder" , adminmiddleware , async function(req:CustomRequest,res:Response) {
+router.get("/pendingorders" , adminmiddleware , async function(req:CustomRequest,res:Response) {
     try {
         const result = await prisma.order.findMany({
             where: {
                 storeId: req.storeId as number,
-                pending: false,
+                status: 'Pending',
               },
              include : {
                      items : {
@@ -274,10 +274,11 @@ router.get("/pendingorder" , adminmiddleware , async function(req:CustomRequest,
     }
 })
 
-const completed = zod.object({
-    id : zod.number(),
+const completed=zod.object({
+    orderId:zod.number().int(),
+    status:zod.literal("Pending").or(zod.literal("Completed")).or(zod.literal("Cancelled"))
 })
-router.post("/completed" , adminmiddleware , async function(req:CustomRequest,res:Response) {
+router.post("/updateorder" , adminmiddleware , async function(req:CustomRequest,res:Response) {
 
     const {success} = completed.safeParse(req.body);
     if (!success) {
@@ -288,10 +289,10 @@ router.post("/completed" , adminmiddleware , async function(req:CustomRequest,re
     try {
         const result = await prisma.order.update({
             where : {
-                id : req.body.id as number,
+                id : req.body.orderId as number,
             },
             data : {
-                pending:true,
+                status:req.body.status,
             }
         })
         return res.status(200).json({
